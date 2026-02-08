@@ -1,0 +1,45 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Generate dataset
+np.random.seed(42)
+X = np.random.uniform(0, 5, 200)
+y = 3 + 4 * X + np.random.normal(0, 1, 200)
+
+# Add bias term
+X = np.vstack((np.ones_like(X), X)).T
+
+# Closed-form solution (Normal Equation)
+theta_cf = np.linalg.inv(X.T @ X) @ X.T @ y
+print("Closed-form solution: Intercept =", theta_cf[0], ", Slope =", theta_cf[1])
+
+# Gradient Descent
+theta_gd = np.zeros(2)
+eta = 0.005  # Adjusted learning rate
+m = len(y)
+loss_history = []
+
+for _ in range(1000):
+ y_pred = X @ theta_gd
+ loss = np.mean((y_pred - y) ** 2)
+ loss_history.append(loss)
+ gradient = (2/m) * X.T @ (X @ theta_gd - y)
+ theta_gd -= eta * gradient
+
+print("Gradient Descent solution: Intercept =", theta_gd[0], ", Slope =", theta_gd[1])
+
+# Plotting
+plt.figure(figsize=(10, 6))
+plt.scatter(X[:, 1], y, label="Raw data")
+plt.plot(X[:, 1], theta_cf[0] + theta_cf[1] * X[:, 1], label="Closed-form fit", color="red")
+plt.plot(X[:, 1], theta_gd[0] + theta_gd[1] * X[:, 1], label="Gradient Descent fit", color="green")
+plt.legend()
+plt.title("Linear Regression Fit")
+plt.show()
+
+plt.figure()
+plt.plot(loss_history)
+plt.title("MSE vs Iterations (Gradient Descent)")
+plt.xlabel("Iterations")
+plt.ylabel("MSE")
+plt.show()
